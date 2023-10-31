@@ -1,0 +1,4 @@
+fastapi
+uvicorn
+pydantic~=1.7.3
+configparser~=5.0.2

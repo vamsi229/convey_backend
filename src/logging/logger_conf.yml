@@ -1,0 +1,7 @@
+logger:
+  name: Convey
+  level: DEBUG
+  type: RotatingFileHandler
+  file_path: logs/
+  max_bytes: 100000000
+  back_up_count: 5
