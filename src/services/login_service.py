@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Header
+from fastapi import APIRouter, Header, UploadFile, Form, File
 
 from src.api import app_base_url, Login
 from src.constants.constants import ResponseMessage, ResponseStatus
@@ -45,13 +45,11 @@ def get_user_fun(token: str = Header(...)):
 
 
 @login_router.put(Login.update_user_details)
-def update_user_fun(request_data: update_user_model,
-                    token: str = Header(...)):
+def update_user_fun(request_data: update_user_model, token: str = Header(...)):
     try:
         token_data = AESCipher.token_validation(token)
         login_object = LoginHandler()
-        response = login_object.update_user_details(request_data=request_data,
-                                                    email=token_data["email"])
+        response = login_object.update_user_details(request_data=request_data, email=token_data["email"])
         return response
     except Exception as e:
         logger.exception(f"Failed to update the user details- {e}")
@@ -64,9 +62,10 @@ def change_password_fun(request_data: change_password_model, token: str = Header
         token_data = AESCipher.token_validation(token)
         login_object = LoginHandler()
         response = login_object.change_password(request_data=request_data,
-                                                    email=token_data["email"])
+                                                email=token_data["email"])
         return response
     except Exception as e:
         logger.exception(f"Failed to update the password in user details- {e}")
         return ResponseMessage.final_json(ResponseStatus.failure, "Failed to update the password in user details",
                                           data=None)
+

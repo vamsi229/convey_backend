@@ -22,6 +22,7 @@ class get_user_model(BaseModel):
 class update_user_model(BaseModel):
     userName: Optional[str]
     phoneNumber: Optional[int]
+    userImage: Optional[str]
 
 
 class change_password_model(BaseModel):

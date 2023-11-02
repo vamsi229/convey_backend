@@ -71,11 +71,11 @@ class LoginHandler:
         final_json = {FinalJson.status: False, FinalJson.message: "Error while updating the user details",
                       FinalJson.data: {}}
         try:
-            print(request_data, email)
-            request_data = dict(request_data)
-            update_user_response = self.user_object.update_one({"email": email}, request_data)
+            update_user_response = self.user_object.update_one({"email": email}, {"userImage": request_data.userImage,
+                                                                                  "userName": request_data.userName,
+                                                                                  "phoneNumber": request_data.phoneNumber})
             if update_user_response:
-                final_json[FinalJson.message] = "Successfully updated the password"
+                final_json[FinalJson.message] = "Successfully updated the details"
                 final_json[FinalJson.status] = True
         except Exception as e:
             logger.exception(f"Error while updating the user details: {e}")
