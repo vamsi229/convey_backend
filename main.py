@@ -4,6 +4,7 @@ from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
 from src.services.login_service import login_router
+from src.services.product_service import product_router
 
 gc.collect()
 
@@ -18,6 +19,7 @@ app = FastAPI(
 
 
 app.include_router(login_router)
+app.include_router(product_router)
 
 app.add_middleware(
     CORSMiddleware,
