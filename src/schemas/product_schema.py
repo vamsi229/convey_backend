@@ -20,3 +20,9 @@ class add_product_schema(BaseModel):
 
 class delete_product_schema(BaseModel):
     productId: str
+
+
+class update_rating_schema(BaseModel):
+    productId: str
+    comments: str
+    rate: int

@@ -15,3 +15,4 @@ class Products:
     add_product = product_base + "/add-product"
     edit_product = product_base + "/edit-product"
     delete_product = product_base + "/delete-product"
+    update_rating = product_base + "/update-rating"

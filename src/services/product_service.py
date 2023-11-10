@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Header, UploadFile, Form, File
+from fastapi import APIRouter, Header
 
 from src.api import app_base_url, Products
 from src.constants.constants import ResponseMessage, ResponseStatus
@@ -53,3 +53,15 @@ def delete_product_fun(productId: str):
     except Exception as e:
         logger.exception(f"Failed to delete the product: {e}")
         return ResponseMessage.final_json(ResponseStatus.failure, "Failed to delete the product", data=None)
+
+
+@product_router.post(Products.update_rating)
+def add_rating_fun(request_data: update_rating_schema, token: str = Header(...)):
+    try:
+        token_data = AESCipher.token_validation(token)
+        product_object = productHandler()
+        response = product_object.give_rating(request_data=request_data, email=token_data["email"])
+        return response
+    except Exception as e:
+        logger.exception(f"Failed to add rating: {e}")
+        return ResponseMessage.final_json(ResponseStatus.failure, "Failed to add rating", data=None)
