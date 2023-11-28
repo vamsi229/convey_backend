@@ -26,3 +26,7 @@ class update_rating_schema(BaseModel):
     productId: str
     comments: str
     rate: int
+
+
+class product_rating_schema(BaseModel):
+    productId: str

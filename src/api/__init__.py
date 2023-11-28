@@ -7,6 +7,7 @@ class Login:
     get_user_details = "/get-user-details"
     update_user_details = "/update-user-details"
     change_password = "/change-password"
+    support = "/support"
 
 
 class Products:
@@ -16,3 +17,4 @@ class Products:
     edit_product = product_base + "/edit-product"
     delete_product = product_base + "/delete-product"
     update_rating = product_base + "/update-rating"
+    product_rating = product_base + "/product-rating"

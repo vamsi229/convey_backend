@@ -65,3 +65,15 @@ def add_rating_fun(request_data: update_rating_schema, token: str = Header(...))
     except Exception as e:
         logger.exception(f"Failed to add rating: {e}")
         return ResponseMessage.final_json(ResponseStatus.failure, "Failed to add rating", data=None)
+
+
+@product_router.post(Products.product_rating)
+def get_rate_fun(request_data: product_rating_schema, token: str = Header(...)):
+    try:
+        token_data = AESCipher.token_validation(token)
+        product_object = productHandler()
+        response = product_object.get_product_ratings(request_data=request_data)
+        return response
+    except Exception as e:
+        logger.exception(f"Failed to get product rating: {e}")
+        return ResponseMessage.final_json(ResponseStatus.failure, "Failed to get product rating", data=None)

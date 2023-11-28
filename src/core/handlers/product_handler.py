@@ -1,3 +1,5 @@
+import copy
+
 import shortuuid
 
 from src.config import MONGO
@@ -27,21 +29,21 @@ class productHandler:
             get_products = self.product_object.find({})
             get_ratings = self.rating_object.aggregate([{
                 "$unwind": "$userRatings"
-            }, {"$group": {"_id": "$productId", "val": {"$avg": "$userRatings.value"}}}])
+            }, {"$group": {"_id": "$productId", "val": {"$avg": "$userRatings.value"}, "count": {"$sum": 1}}}])
             if get_products and get_ratings:
                 get_products = list(get_products)
                 get_ratings = list(get_ratings)
                 for each_product in get_products:
                     temp_json = each_product
                     temp_json["aggregatedRating"] = 0
+                    temp_json["count"] = 0
                     for each_rate in get_ratings:
-                        # print(each_rate, each_product)
                         if each_rate["_id"] == each_product["productId"]:
                             temp_json["aggregatedRating"] = each_rate["val"]
+                            temp_json["count"] = each_rate["count"]
                             break
 
                     body_content.append(temp_json)
-                    # print(get_ratings)
             final_json[FinalJson.data] = body_content
             final_json[FinalJson.status] = True
             final_json[FinalJson.message] = "Successfully fetched the products"
@@ -55,7 +57,6 @@ class productHandler:
             if request_data.productId is None:
                 request_data = dict(request_data)
                 new_product_id = shortuuid.uuid()
-                print(new_product_id)
                 request_data["productId"] = new_product_id
                 add_product_response = self.product_object.insert_one(request_data)
                 if add_product_response:
@@ -101,17 +102,18 @@ class productHandler:
                     final_json[FinalJson.status] = True
                     final_json[FinalJson.message] = f"Successfully inserted the rating for product"
             else:
+                userRatings = copy.deepcopy(get_rating["userRatings"])
                 userFound = False
-                for each in range(len(get_rating["userRatings"])):
-                    if get_rating["userRatings"][each]["email"] == email:
+                for each in range(len(userRatings)):
+                    if userRatings[each]["email"] == email:
                         userFound = True
-                        get_rating["userRatings"][each]["value"] = request_data["rate"]
-                        get_rating["userRatings"][each]["comment"] = request_data["comments"]
-                    update_rating_response = self.rating_object.update_one(query=
-                                                                           {"productId": request_data["productId"]},
-                                                                           data={"userRatings": get_rating[
-                                                                               "userRatings"]})
-                    break
+                        userRatings[each]["value"] = request_data["rate"]
+                        userRatings[each]["comment"] = request_data["comments"]
+                        update_rating_response = self.rating_object.update_one(query=
+                                                                               {"productId": request_data["productId"]},
+                                                                               data={"userRatings": get_rating[
+                                                                                   "userRatings"]})
+                        break
                 if not userFound:
                     update_rating_response = self.rating_object.update_one(strategy="$push", query={
                         "productId": request_data["productId"],
@@ -128,4 +130,20 @@ class productHandler:
 
         except Exception as e:
             logger.exception(f"Error while updating the rating: {e}")
+        return final_json
+
+    def get_product_ratings(self, request_data):
+        final_json = {FinalJson.status: False, FinalJson.message: "Error while fetching the rating", FinalJson.data: {}}
+        try:
+            get_product_data = self.rating_object.find_one({"productId": request_data.productId})
+            userRates = {"1": 0, "2": 0, "3": 0, "4": 0, "5": 0}
+            print(get_product_data)
+            if get_product_data:
+                final_json[FinalJson.status] = True
+                final_json[FinalJson.message] = "Successfully fetched the ratings"
+                for each_rating in get_product_data["userRatings"]:
+                    userRates[str(each_rating["value"])] += 1
+                final_json[FinalJson.data] = userRates
+        except Exception as e:
+            logger.exception(f"Error while getting the product rating: {e}")
         return final_json
